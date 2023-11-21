@@ -23,34 +23,31 @@ class MainActivity : AppCompatActivity() {
         renderableSource = RenderableSource.builder()
             .setSource(
                 this,
-                Uri.parse("path/to/model.glb"), // or model.glb if you chose binary glTF
+                Uri.parse("assets/model.glb"),
                 RenderableSource.SourceType.GLB
             )
             .setRecenterMode(RenderableSource.RecenterMode.ROOT)
             .build()
 
-        // Build 3D Model Renderable
         ModelRenderable.builder()
             .setSource(this, renderableSource)
             .build()
             .thenAccept { modelRenderable ->
                 renderable = modelRenderable
-            }
-            .exceptionally { _ ->
-                // Handle errors here
-                null
-            }
 
-        // Add a listener to show AR model
-        fragment = supportFragmentManager.findFragmentById(R.id.ux_fragment) as ArFragment
+                fragment = supportFragmentManager.findFragmentById(R.id.ux_fragment) as ArFragment
 
-        fragment.setOnTapArPlaneListener { hitResult, _, _ ->
-            val anchorNode = AnchorNode(hitResult.createAnchor())
-            anchorNode.setParent(fragment.arSceneView.scene)
-            val transformableNode = TransformableNode(fragment.transformationSystem)
-            transformableNode.renderable = renderable
-            transformableNode.setParent(anchorNode)
-            transformableNode.select()
-        }
+                fragment.setOnTapArPlaneListener { hitResult, _, _ ->
+                    val anchorNode = AnchorNode(hitResult.createAnchor())
+                    anchorNode.setParent(fragment.arSceneView.scene)
+                    val transformableNode = TransformableNode(fragment.transformationSystem)
+                    transformableNode.renderable = renderable
+                    transformableNode.setParent(anchorNode)
+                    transformableNode.select()
+                }
+            }
+            .exceptionally { throwable ->
+                return@exceptionally null
+            }
     }
 }
